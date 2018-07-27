@@ -4,6 +4,7 @@ import styled from '../../theme';
 export interface InputProps {
   posX: number;
   posY: number;
+  addSticker: (sticker: {}) => void;
 }
 interface State {
   readonly value: string;

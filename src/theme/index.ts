@@ -12,10 +12,12 @@ const {
 
 export interface IThemeInterface {
   primaryColor: string;
+  secondaryColor: string;
 }
 
 export const theme = {
-  primaryColor: "#e9e9eb"
+  primaryColor: '#e9e9eb',
+  secondaryColor: '#e83852',
 };
 
 export default styled;
