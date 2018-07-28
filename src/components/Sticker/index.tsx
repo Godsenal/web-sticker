@@ -1,14 +1,16 @@
 import React from 'react';
-import { DragProvider } from '../';
+import StickerHeader from './StickerHeader';
+import StickerText from './StickerText';
+import { DragProvider } from '..';
 import styled from '../../theme';
 import { ISticker } from '../../interfaces';
 
 const DEFAULT_HEADER = 20;
 
 interface StyledProps {
-  posX: number;
-  posY: number;
-  isFocused: boolean;
+  posX?: number;
+  posY?: number;
+  isFocused?: boolean;
 };
 const Container = styled.div`
   position: absolute;
@@ -16,8 +18,11 @@ const Container = styled.div`
   left: ${(props: StyledProps) => props.posX}%;
   width: 200px;
   height: 200px;
+  min-width: 80px;
+  min-height: 80px;
 
   background-color: ${props => props.theme.primaryColor};
+  border: 1px solid ${props => props.theme.borderColor};
   border-radius: 5px;
 
   resize: both;
@@ -30,25 +35,9 @@ const Container = styled.div`
     outline: none;
   }
 `;
-const Header = styled.div`
-  width: 100%;
-  height: ${DEFAULT_HEADER}px;
-
-  background-color: ${props => props.theme.secondaryColor};
-
-`;
-const TextArea = styled.textarea`
-  resize: none;
-  border: none;
-  outline: none;
-  margin: auto;
-
-  width: 98%;
-  height: calc(100% - ${DEFAULT_HEADER * 2}px);
-  background: transparent;
-`;
 export interface StickerProps extends ISticker {
   updateSticker: (id: number, update: {}) => void;
+  removeSticker: (id: number) => void;
 }
 interface State {
   contents: string;
@@ -81,7 +70,15 @@ export default class Sticker extends React.Component<StickerProps, State> {
       contents: e.target.value,
     });
   }
-  setFocus = (isFocused: boolean) => {
+  handleUpdate = (update: {}) => {
+    const { id, updateSticker } = this.props;
+    updateSticker(id, update);
+  }
+  handleRemove = () => {
+    const { id, removeSticker } = this.props;
+    removeSticker(id);
+  }
+  setFocus = (isFocused: boolean = true) => () => {
     this.setState({
       isFocused,
     });
@@ -119,11 +116,13 @@ export default class Sticker extends React.Component<StickerProps, State> {
   }
   onMouseDown = (e: React.MouseEvent) => {
     // Prevent add Sticker in Board Component.
-    e.stopPropagation();
-    let sticker;
-    if (sticker = this._sticker.current) {
-      this._oldWidth = sticker.offsetWidth;
-      this._oldHeight = sticker.offsetHeight;
+    if (this._sticker.current && e.currentTarget.contains(this._sticker.current)) {
+      e.stopPropagation();
+      let sticker;
+      if (sticker = this._sticker.current) {
+        this._oldWidth = sticker.offsetWidth;
+        this._oldHeight = sticker.offsetHeight;
+      }
     }
   }
   onDragStart = (e: React.DragEvent) => {
@@ -149,7 +148,7 @@ export default class Sticker extends React.Component<StickerProps, State> {
   }
   render() {
     const { draggable, contents, isFocused } = this.state;
-    const { id, top, left } = this.props;
+    const { id, top, left, fontSize } = this.props;
     // TabIndex make div focusable
     return (
       <Container
@@ -164,15 +163,21 @@ export default class Sticker extends React.Component<StickerProps, State> {
         onMouseUp={this.onMouseUp}
         onMouseDown={this.onMouseDown}
       >
-        <Header
+        <StickerHeader
+          {...this.props}
+          height={DEFAULT_HEADER}
+          handleRemove={this.handleRemove}
+          handleUpdate={this.handleUpdate}
           onMouseDown={() => this.setDraggable(true)}
           onMouseUp={() => this.setDraggable(false)}
         />
-        <TextArea
+        <StickerText
+          {...this.props}
           value={contents}
+          isFocused={isFocused}
           onChange={this.handleText}
-          onFocus={() => this.setFocus(true)}
-          onBlur={() => this.setFocus(false)}
+          onFocus={this.setFocus(true)}
+          onBlur={this.setFocus(false)}
         />
       </Container>
     );

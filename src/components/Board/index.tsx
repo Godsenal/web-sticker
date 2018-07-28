@@ -8,6 +8,7 @@ export interface BoardProps {
   stickers: ISticker[];
   addSticker: (sticker: {}) => void;
   updateSticker: (id: number, update: {}) => void;
+  removeSticker: (id: number) => void;
 }
 interface State {
   readonly isInput: boolean;
@@ -43,13 +44,18 @@ export default class Board extends React.Component<BoardProps, State> {
     // this.props.updateSticker(targetId, { left: clientX, top: clientY });
   }
   render() {
-    const { stickers, addSticker, updateSticker } = this.props;
+    const { stickers, updateSticker, removeSticker } = this.props;
     const { isInput, posX, posY } = this.state;
     return (
       <DropProvider handleDrop={this.handleDrop}>
         <Container onMouseDown={this.handleMouseDown}>
           {stickers.map(sticker => (
-            <Sticker key={sticker.id} {...sticker} updateSticker={updateSticker} />
+            <Sticker
+              key={sticker.id}
+              {...sticker}
+              updateSticker={updateSticker}
+              removeSticker={removeSticker}
+            />
           ))}
         </Container>
       </DropProvider>

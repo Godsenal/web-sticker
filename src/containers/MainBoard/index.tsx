@@ -1,10 +1,28 @@
 import React from 'react';
-import { Board } from '../../components';
+import { Board, IconButton } from '../../components';
 import { ISticker } from '../../interfaces';
-import { ThemeProvider, theme } from '../../theme';
+import styled, { ThemeProvider, theme, darkTheme } from '../../theme';
+import { DEFAULT_STICKER } from '../../constants';
+import NightIcon from 'react-icons/lib/ti/weather-night';
 
+const Container = styled.div`
+  height: 100%;
+  background-color: ${(props: any) => props.isDark ? 'black' : '#fff'};
+`;
+const FixedButton = styled.div`
+  position: absolute;
+  border-radius: 50%;
+  color: ${props => props.theme.primaryTextColor};
+  top: 5px;
+  right: 30px;
+  font-size: 24px;
+  z-index: 1000;
+
+  cursor: pointer;
+`;
 interface State {
   stickers: ISticker[];
+  isDark: boolean;
 }
 interface UpdateSticker {
   top?: number;
@@ -17,6 +35,7 @@ export default class MainBoard extends React.Component<{}, State> {
   private _id: number = 0;
   state = {
     stickers: [],
+    isDark: false,
   }
   componentDidMount() {
     // saved stickers to localstorage with JSON.stringify
@@ -32,6 +51,12 @@ export default class MainBoard extends React.Component<{}, State> {
     }
     */
   }
+  toggleTheme = () => {
+    this.setState(state => ({
+      ...state,
+      isDark: !state.isDark,
+    }));
+  }
   calculatePos = (top: number, left: number) => {
     const { innerWidth, innerHeight } = window;
     let newTop = (Math.max(0, top) / innerHeight) * 100;
@@ -45,6 +70,7 @@ export default class MainBoard extends React.Component<{}, State> {
     const { top, left } = data;
     const { newTop, newLeft } = this.calculatePos(top, left);
     const sticker = {
+      ...DEFAULT_STICKER,
       id: this._id++,
       top: newTop,
       left: newLeft,
@@ -76,15 +102,27 @@ export default class MainBoard extends React.Component<{}, State> {
       }),
     }));
   }
+  removeSticker = (id: number) => {
+    this.setState(state => ({
+      ...state,
+      stickers: state.stickers.filter(sticker => sticker.id !== id),
+    }));
+  }
   render() {
-    const { stickers } = this.state;
+    const { stickers, isDark } = this.state;
     return (
-      <ThemeProvider theme={theme}>
-        <Board
-          stickers={stickers}
-          addSticker={this.addSticker}
-          updateSticker={this.updateSticker}
-        />
+      <ThemeProvider theme={isDark ? darkTheme : theme}>
+        <Container isDark={isDark}>
+          <FixedButton onClick={this.toggleTheme} >
+            <NightIcon />
+          </FixedButton>
+          <Board
+            stickers={stickers}
+            addSticker={this.addSticker}
+            removeSticker={this.removeSticker}
+            updateSticker={this.updateSticker}
+          />
+        </Container>
       </ThemeProvider>
     )
   }

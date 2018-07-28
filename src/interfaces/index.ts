@@ -5,6 +5,7 @@ export interface ISticker {
   contents: string;
   top: number;
   left: number;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
+  fontSize: number;
 }
