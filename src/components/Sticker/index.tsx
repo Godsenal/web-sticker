@@ -1,4 +1,5 @@
 import React from 'react';
+import { Motion, spring, Style } from 'react-motion';
 import StickerHeader from './StickerHeader';
 import StickerText from './StickerText';
 import styled from '../../theme';
@@ -12,6 +13,7 @@ interface StyledProps {
   width?: number;
   height?: number;
   backgroundColor?: string;
+  scale?: number;
   isFocused?: boolean;
 };
 const Container = styled.div`
@@ -20,6 +22,7 @@ const Container = styled.div`
   left: ${(props: StyledProps) => props.left}%;
   width: ${(props: StyledProps) => props.width}px;
   height: ${(props: StyledProps) => props.height}px;
+  transform: ${(props: StyledProps) => `scale(${props.scale})`};
   min-width: 80px;
   min-height: 80px;
 
@@ -169,38 +172,48 @@ export default class Sticker extends React.Component<StickerProps, State> {
     const { id, contents, top, left, width, height, fontSize, backgroundColor } = this.props;
     // TabIndex make div focusable
     return (
-      <Container
-        innerRef={this._sticker}
-        tabIndex={id}
-        left={left}
-        top={top}
-        width={width}
-        height={height}
-        backgroundColor={backgroundColor}
-        isFocused={isFocused}
-        draggable={draggable}
-        onDragStart={this.onDragStart}
-        onDragEnd={this.onDragEnd}
-        onMouseUp={this.onMouseUp}
-        onMouseDown={this.onMouseDown}
+      <Motion
+        defaultStyle={{ scale: 0 }}
+        style={{ scale: spring(1, {stiffness: 210, damping: 20}) }}
       >
-        <StickerHeader
-          {...this.props}
-          height={DEFAULT_HEADER}
-          handleRemove={this.handleRemove}
-          handleUpdate={this.handleUpdate}
-          onMouseDown={() => this.setDraggable(true)}
-          onMouseUp={() => this.setDraggable(false)}
-        />
-        <StickerText
-          contents={contents}
-          fontSize={fontSize}
-          handleUpdate={this.handleUpdate}
-          isFocused={isFocused}
-          onFocus={this.setFocus(true)}
-          onBlur={this.setFocus(false)}
-        />
-      </Container>
+        {
+          interpolatedStyle => (
+            <Container
+              innerRef={this._sticker}
+              tabIndex={id}
+              left={left}
+              top={top}
+              width={width}
+              height={height}
+              backgroundColor={backgroundColor}
+              scale={interpolatedStyle.scale}
+              isFocused={isFocused}
+              draggable={draggable}
+              onDragStart={this.onDragStart}
+              onDragEnd={this.onDragEnd}
+              onMouseUp={this.onMouseUp}
+              onMouseDown={this.onMouseDown}
+            >
+              <StickerHeader
+                {...this.props}
+                height={DEFAULT_HEADER}
+                handleRemove={this.handleRemove}
+                handleUpdate={this.handleUpdate}
+                onMouseDown={() => this.setDraggable(true)}
+                onMouseUp={() => this.setDraggable(false)}
+              />
+              <StickerText
+                contents={contents}
+                fontSize={fontSize}
+                handleUpdate={this.handleUpdate}
+                isFocused={isFocused}
+                onFocus={this.setFocus(true)}
+                onBlur={this.setFocus(false)}
+              />
+            </Container>
+          )
+        }
+      </Motion>
     );
   }
 }
