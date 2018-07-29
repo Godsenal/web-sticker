@@ -35,18 +35,35 @@ export default class MainBoard extends React.Component<{}, State> {
     isDark: false,
   }
   componentDidMount() {
-    // saved stickers to localstorage with JSON.stringify
-    // get stickers from localstorage with JSON.parse
-    /*
     const savedStickers = localStorage.getItem('stickers');
+    const savedTheme = localStorage.getItem('theme');
+    let savedState = {};
     if (savedStickers) {
       const stickers = JSON.parse(savedStickers);
       this._id = stickers[stickers.length - 1].id + 1;
-      this.setState({
+      savedState = {
+        ...savedState,
         stickers,
-      });
+      };
     }
-    */
+    if(savedTheme) {
+      savedState = {
+        ...savedState,
+        isDark: savedTheme === 'dark',
+      }
+    }
+    this.setState({
+      ...this.state,
+      ...savedState,
+    });
+  }
+  componentDidUpdate(_: any, prevState: State) {
+    if (prevState.isDark !== this.state.isDark) {
+      this.updateLocalStorage({ isDark: this.state.isDark });
+    }
+    if (prevState.stickers !== this.state.stickers) {
+      this.updateLocalStorage({ stickers: this.state.stickers });
+    }
   }
   toggleTheme = () => {
     this.setState(state => ({
@@ -104,6 +121,15 @@ export default class MainBoard extends React.Component<{}, State> {
       stickers: state.stickers.filter(sticker => sticker.id !== id),
     }));
   }
+  updateLocalStorage = (update: { stickers?: ISticker[], isDark?: boolean }) => {
+    const { stickers, isDark } = update;
+    if (stickers) {
+      localStorage.setItem('stickers', JSON.stringify(stickers));
+    }
+    if (typeof isDark !== 'undefined') {
+      localStorage.setItem('theme', isDark ? 'dark' : 'default');
+    }
+  } 
   render() {
     const { stickers, isDark } = this.state;
     return (
