@@ -20,7 +20,12 @@ const Container = styled.div`
 
   height: 100%;
 `;
-
+const EmptyBox = styled.div`
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 export default class Board extends React.Component<BoardProps, State> {
   state = {
     isInput: false,
@@ -57,6 +62,13 @@ export default class Board extends React.Component<BoardProps, State> {
               removeSticker={removeSticker}
             />
           ))}
+          {
+            stickers.length === 0 && (
+              <EmptyBox>
+                Click anywhere to add sticker!
+              </EmptyBox>
+            )
+          }
         </Container>
       </DropProvider>
     );

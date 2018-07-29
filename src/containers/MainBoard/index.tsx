@@ -40,11 +40,13 @@ export default class MainBoard extends React.Component<{}, State> {
     let savedState = {};
     if (savedStickers) {
       const stickers = JSON.parse(savedStickers);
-      this._id = stickers[stickers.length - 1].id + 1;
-      savedState = {
-        ...savedState,
-        stickers,
-      };
+      if (stickers.length > 0) {
+        this._id = stickers[stickers.length - 1].id + 1;
+        savedState = {
+          ...savedState,
+          stickers,
+        };
+      }
     }
     if(savedTheme) {
       savedState = {
