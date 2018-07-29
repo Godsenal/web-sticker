@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface ISticker {
   id: number;
   contents: string;
@@ -8,4 +6,5 @@ export interface ISticker {
   width: number;
   height: number;
   fontSize: number;
+  backgroundColor: string;
 }

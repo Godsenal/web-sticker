@@ -5,14 +5,14 @@ import SettingIcon from 'react-icons/lib/ti/cog-outline';
 import CloseIcon from 'react-icons/lib/ti/delete-outline';
 import CheckIcon from 'react-icons/lib/ti/tick-outline';
 
-import { STICKER_HEADER_HEIGHT } from '../../constants';
+import { STICKER_HEADER_HEIGHT, BACKGROUND_COLORS } from '../../constants';
 
 interface HeaderStyleProps {
   height?: number,
 }
 const Header = styled.div`
   width: 100%;
-  height: ${(props: HeaderStyleProps) => props.height ? `${props.height}px` : `${STICKER_HEADER_HEIGHT}px`};
+  height: ${STICKER_HEADER_HEIGHT}px;
 
   background-color: ${props => props.theme.secondaryColor};
 
@@ -30,7 +30,7 @@ const Setting = styled.div`
 `;
 const SettingList = styled.ul`
   list-style-type: none;
-  padding: 5px;
+  padding: 0 5px;
   margin: 0;
 `;
 const SettingListItem = styled.li`
@@ -40,10 +40,11 @@ const SettingListItem = styled.li`
   align-items: center;
   
   margin-top: 5px;
+  margin-bottom: 5px;
   margin-right: 5px;
 `;
 const Label = styled.span`
-  flex: 1 1;
+  margin-right: 5px;
   color: ${props => props.theme.secondaryTextColor};
 `
 const NumberInput = styled.input`
@@ -54,8 +55,26 @@ const NumberInput = styled.input`
   width: 50px;
   margin-left: 5px;
 `;
+
+const ColorPicker = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 5px;
+
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  color: ${props => props.theme.primaryTextColor};
+  background-color: ${(props: any) => props.backgroundColor ? props.backgroundColor : props.theme.primaryColor};
+
+  cursor: pointer;
+`;
+
 export interface StickerHeaderProps {
   fontSize: number;
+  backgroundColor: string;
   height?: number;
   handleUpdate: (update: {}) => void;
   handleRemove: () => void;
@@ -65,12 +84,14 @@ export interface StickerHeaderProps {
 interface State {
   readonly showSetting: boolean;
   readonly fontSize: number;
+  readonly backgroundColor: string | undefined;
 }
 class StickerHeader extends React.Component<StickerHeaderProps> {
   private _setting: React.RefObject<HTMLDivElement> = React.createRef();
   state = {
     showSetting: false,
     fontSize: this.props.fontSize,
+    backgroundColor: this.props.backgroundColor,
   }
   showSetting = (show: boolean = true) => {
     this.setState({
@@ -78,9 +99,10 @@ class StickerHeader extends React.Component<StickerHeaderProps> {
     });
   }
   handleUpdate = () => {
-    const { fontSize } = this.state;
+    const { fontSize, backgroundColor } = this.state;
     const update = {
       fontSize,
+      backgroundColor,
     };
     this.props.handleUpdate(update);
     this.showSetting(false);
@@ -89,10 +111,16 @@ class StickerHeader extends React.Component<StickerHeaderProps> {
     this.setState({
       fontSize: e.target.value,
     });
-  } 
+  }
+  handleBackground = (color: string | undefined) => {
+    this.setState({
+      backgroundColor: color,
+    });
+  }
   render() {
-    const { showSetting, fontSize } = this.state;
-    const { handleRemove, ...props} = this.props;
+    const { showSetting, fontSize, backgroundColor } = this.state;
+    const { handleRemove, height, ...props} = this.props;
+    const colorPicker = [undefined, ...BACKGROUND_COLORS];
     return (
       <Header {...props}>
         <IconButton innerRef={this._setting} onClick={() => this.showSetting(true)}>
@@ -116,6 +144,19 @@ class StickerHeader extends React.Component<StickerHeaderProps> {
                     value={fontSize}
                     onChange={this.handleFontSize}
                   />
+                </SettingListItem>
+                <SettingListItem>
+                  {
+                    colorPicker.map((color, i) => (
+                      <ColorPicker
+                        key={i}
+                        backgroundColor={color}
+                        onClick={() => this.handleBackground(color)}
+                      >
+                        { color === backgroundColor && <CheckIcon />}
+                      </ColorPicker>
+                    ))
+                  }
                 </SettingListItem>
               </SettingList>
             </Setting>

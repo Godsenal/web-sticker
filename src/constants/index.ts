@@ -14,3 +14,11 @@ export const DEFAULT_STICKER = {
   height: STICKER_HEIGHT,
   fontSize: STICKER_FONTSIZE,
 };
+
+export const BACKGROUND_COLORS = [
+  "#307cd0",
+  "#555cb5",
+  "#05ac7c",
+  "#fb167c",
+  "#f3e40b",
+];

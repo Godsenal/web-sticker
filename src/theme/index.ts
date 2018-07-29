@@ -5,7 +5,7 @@ const {
   css,
   injectGlobal,
   keyframes,
-  ThemeProvider
+  ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<
   IThemeInterface
 >;
@@ -19,18 +19,18 @@ export interface IThemeInterface {
 }
 
 export const theme = {
-  primaryColor: '#e9e9eb',
-  secondaryColor: '#e83852',
+  primaryColor: 'white',
+  secondaryColor: '#209de2',
   primaryTextColor: 'rgba(0, 0, 0, 0.84)',
   secondaryTextColor: 'white',
-  borderColor: '#e83852',
+  borderColor: '#209de2',
 };
 
 export const darkTheme = {
-  primaryColor: 'rgba(0, 0, 0, 0.84)',
+  primaryColor: 'black',
   secondaryColor: '#e9e9eb',
   primaryTextColor: 'white',
-  secondaryTextColor: 'rgba(0, 0, 0, 0.84)',
+  secondaryTextColor: 'currentColor',
   borderColor: '#e9e9eb',
 }
 

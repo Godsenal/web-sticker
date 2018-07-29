@@ -1,9 +1,8 @@
 import React from 'react';
-import { Board, IconButton } from '../../components';
+import { Board, GlobalSetting } from '../../components';
 import { ISticker } from '../../interfaces';
 import styled, { ThemeProvider, theme, darkTheme } from '../../theme';
 import { DEFAULT_STICKER } from '../../constants';
-import NightIcon from 'react-icons/lib/ti/weather-night';
 
 const Container = styled.div`
   height: 100%;
@@ -17,8 +16,6 @@ const FixedButton = styled.div`
   right: 30px;
   font-size: 24px;
   z-index: 1000;
-
-  cursor: pointer;
 `;
 interface State {
   stickers: ISticker[];
@@ -90,7 +87,6 @@ export default class MainBoard extends React.Component<{}, State> {
         left: newLeft,
       }
     }
-    
     this.setState(state => ({
       ...state,
       stickers: state.stickers.map(sticker => {
@@ -113,8 +109,11 @@ export default class MainBoard extends React.Component<{}, State> {
     return (
       <ThemeProvider theme={isDark ? darkTheme : theme}>
         <Container isDark={isDark}>
-          <FixedButton onClick={this.toggleTheme} >
-            <NightIcon />
+          <FixedButton>
+            <GlobalSetting
+              isDark={isDark}
+              toggleTheme={this.toggleTheme}
+            />
           </FixedButton>
           <Board
             stickers={stickers}

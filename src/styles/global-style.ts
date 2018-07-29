@@ -16,4 +16,7 @@ injectGlobal`
     #app {
         height: 100%;
     }
+    [draggable=true] {
+        -khtml-user-drag: element;
+    }
 `;

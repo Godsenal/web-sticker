@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '../../theme';
-import { DropProvider, Input, Sticker } from '..';
+import { Sticker, DropProvider } from '..';
 import { ISticker } from '../../interfaces';
 import { STICKER_WIDTH, STICKER_HEIGHT } from '../../constants';
 
