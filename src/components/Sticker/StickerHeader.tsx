@@ -1,5 +1,5 @@
 import React from 'react';
-import { Popover, IconButton } from '../';
+import { Popover, IconButton } from '..';
 import styled from '../../theme';
 import SettingIcon from 'react-icons/lib/ti/cog-outline';
 import CloseIcon from 'react-icons/lib/ti/delete-outline';

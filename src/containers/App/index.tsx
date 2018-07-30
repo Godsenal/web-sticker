@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '../../theme';
-import { MainBoard } from '..';
+import { AuthProvider, MainBoard } from '..';
 
 const Container = styled.div`
   height: 100%;
@@ -9,9 +9,11 @@ const Container = styled.div`
 export default class App extends React.Component<{}, {}> {
   render() {
     return (
-      <Container>
-        <MainBoard />
-      </Container>
+      <AuthProvider>
+        <Container>
+          <MainBoard />
+        </Container>
+      </AuthProvider>
     );
   }
 }

@@ -8,3 +8,9 @@ export interface ISticker {
   fontSize: number;
   backgroundColor: string;
 }
+
+export interface IUser {
+  username: string;
+  stickers: ISticker[];
+  theme: string;
+}

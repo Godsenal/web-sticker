@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '../../theme';
-import { IconButton, Popover } from '../';
+import { IconButton, Popover } from '..';
+import { AuthContext } from '../../contexts';
 import SettingIcon from 'react-icons/lib/ti/cog-outline';
 import NightIcon from 'react-icons/lib/io/ios-moon-outline';
 import FillNightIcon from 'react-icons/lib/io/ios-moon';
@@ -71,6 +72,15 @@ export default class GlobalSetting extends React.Component<SettingProps, State> 
           handleClose={this.closeMenu}
         >
           <SettingList>
+            {
+              <AuthContext.Consumer>
+                {(context) => (
+                  <ListItem onClick={context.showLoginModal}>
+                    <span>Login</span>
+                  </ListItem>
+                )}
+              </AuthContext.Consumer>
+            }
             <ListItem onClick={toggleTheme}>
               <span>Night Mode</span>
               <Icon>{isDark ? <FillNightIcon /> : <NightIcon />}</Icon>

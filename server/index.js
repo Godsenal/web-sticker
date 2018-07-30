@@ -1,6 +1,7 @@
 const express = require('express');
 const chalk = require('chalk');
-
+const bodyParser = require('body-parser');
+const routes = require('./routes');
 const isDev = process.env.NODE_ENV !== 'production';
 const host = (process.env.HOST || 'localhost');
 const port = (process.env.PORT || 3000);
@@ -17,8 +18,11 @@ const setup = isDev ? require('./setup/setupDev') : require('./setup/setupProd')
 */
 
 const app = express();
-
-// Your api or static setting like app.use('/static', express.static(outputPath));
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+// parse application/json
+app.use(bodyParser.json())
+app.use('/api', routes);
 
 setup(app);
 // get the intended host and port number, use localhost and port 3000 if not provided

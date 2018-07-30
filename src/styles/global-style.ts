@@ -19,4 +19,10 @@ injectGlobal`
     [draggable=true] {
         -khtml-user-drag: element;
     }
+    h1 {
+        margin: 0;
+        padding: 0;
+        font-size: 1.8em;
+        color: rgba(0, 0, 0, 0.84);
+    }
 `;

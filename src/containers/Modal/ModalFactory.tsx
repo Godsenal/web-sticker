@@ -21,9 +21,11 @@ const InnerContainer = styled.div`
   width: 60%;
   margin-left: -30%;
 
+  color: rgba(0, 0, 0, 0.84);
+  background-color: white;
+
   font-size: 20px;
-  color: ${props => props.theme.secondaryTextColor};
-  background-color: ${props => props.theme.secondaryColor};
+  border-radius: 5px;
 `;
 const Header = styled.div`
   display: flex;
