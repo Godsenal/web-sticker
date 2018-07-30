@@ -16,13 +16,17 @@ interface StyledProps {
   scale?: number;
   isFocused?: boolean;
 };
-const Container = styled.div`
+/* Use attrs api when use styled-components with react-motion */
+const Container = styled.div.attrs({
+  style: ((props: StyledProps) => ({
+    transform: 'scale(' + props.scale + ')'
+  })),
+})`
   position: absolute;
   top: ${(props: StyledProps) => props.top}%;
   left: ${(props: StyledProps) => props.left}%;
   width: ${(props: StyledProps) => props.width}px;
   height: ${(props: StyledProps) => props.height}px;
-  transform: ${(props: StyledProps) => `scale(${props.scale})`};
   min-width: 80px;
   min-height: 80px;
 

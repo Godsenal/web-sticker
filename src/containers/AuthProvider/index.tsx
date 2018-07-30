@@ -11,13 +11,31 @@ export interface AuthProviderProps {
 interface State {
   isLoggedIn: boolean;
   show: boolean;
-  userData?: IUser | {};
+  userData: IUser | {};
 }
 export default class AuthProvider extends React.Component<AuthProviderProps, State> {
   state = {
     isLoggedIn: false,
     show: false,
     userData: {},
+  }
+  componentDidMount() {
+    const currentToken = jwt.getToken();
+    if (!currentToken) {
+      return;
+    }
+    jwt.setToken(currentToken);
+    authApi.verify()
+      .then(res => {
+        const userData = res.data;
+        this.updateUserData(userData);
+      })
+  }
+  updateUserData = (userData: IUser) => {
+    this.setState({
+      isLoggedIn: true,
+      userData: userData,
+    });
   }
   showLoginModal = () => {
     this.setState({
@@ -32,17 +50,10 @@ export default class AuthProvider extends React.Component<AuthProviderProps, Sta
   login = (username: string, password: string) => {
     authApi.login(username, password)
       .then(res => {
-        const { token, username, stickers, theme } = res.data;
+        const { token, ...userData } = res.data;
         jwt.setToken(token);
-        const user = {
-          username,
-          stickers,
-          theme,
-        };
-        this.setState({
-          isLoggedIn: true,
-          userData: user,
-        });
+        this.updateUserData(userData);
+        this.closeLoginModal();
       });
   }
   logout = () => {

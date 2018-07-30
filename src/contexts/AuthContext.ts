@@ -3,12 +3,13 @@ import { IUser } from '../interfaces';
 
 export interface AuthContextType  {
   isLoggedIn: boolean;
-  userData?: IUser;
+  userData: IUser | {};
   showLoginModal: () => void;
   logout: () => void;
 }
 const defaultValue = {
   isLoggedIn: false,
+  userData: {},
   showLoginModal: () => {},
   logout: () => {},
 }

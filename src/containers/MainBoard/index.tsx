@@ -1,6 +1,9 @@
 import React from 'react';
+import debounce from 'lodash/debounce';
 import { Board, GlobalSetting } from '../../components';
-import { ISticker } from '../../interfaces';
+import { ISticker, IUser } from '../../interfaces';
+import { AuthContext } from '../../contexts';
+import * as dataApi from '../../api/data';
 import styled, { ThemeProvider, theme, darkTheme } from '../../theme';
 import { DEFAULT_STICKER } from '../../constants';
 
@@ -17,6 +20,10 @@ const FixedButton = styled.div`
   font-size: 24px;
   z-index: 1000;
 `;
+export interface MainBoardProps {
+  isLoggedIn: boolean;
+  userData: IUser | {};
+}
 interface State {
   stickers: ISticker[];
   isDark: boolean;
@@ -28,13 +35,46 @@ interface UpdateSticker {
   height?: number;
   contents?: string;
 }
-export default class MainBoard extends React.Component<{}, State> {
+class MainBoard extends React.Component<MainBoardProps, State> {
   private _id: number = 0;
+  private _updateByMode: (update: { stickers?: ISticker[], isDark?: boolean }) => void;
   state = {
     stickers: [],
     isDark: false,
   }
   componentDidMount() {
+    this._updateByMode = this.updateLocalStorage;
+    this.setLocalData();
+  }
+  componentDidUpdate(prevProps: MainBoardProps, prevState: State) {
+    // login
+    if (this.props.isLoggedIn && prevProps.isLoggedIn !== this.props.isLoggedIn) {
+      this.setServerData();
+    }
+    // logout
+    if (!this.props.isLoggedIn && prevProps.isLoggedIn !== this.props.isLoggedIn) {
+      this._updateByMode = this.updateLocalStorage;
+      this.setLocalData();
+    }
+    if (prevState.isDark !== this.state.isDark) {
+      this._updateByMode({ isDark: this.state.isDark });
+    }
+    if (prevState.stickers !== this.state.stickers) {
+      this._updateByMode({ stickers: this.state.stickers });
+    }
+  }
+  setServerData = () => {
+    const { stickers, theme } = this.props.userData as IUser;
+    this._updateByMode = this.updateServer;
+    if (stickers.length > 0) {
+      this._id = stickers[stickers.length - 1].id + 1;
+    }
+    this.setState({
+      stickers,
+      isDark: theme === 'dark',
+    });
+  }
+  setLocalData = () => {
     const savedStickers = localStorage.getItem('stickers');
     const savedTheme = localStorage.getItem('theme');
     let savedState = {};
@@ -58,14 +98,6 @@ export default class MainBoard extends React.Component<{}, State> {
       ...this.state,
       ...savedState,
     });
-  }
-  componentDidUpdate(_: any, prevState: State) {
-    if (prevState.isDark !== this.state.isDark) {
-      this.updateLocalStorage({ isDark: this.state.isDark });
-    }
-    if (prevState.stickers !== this.state.stickers) {
-      this.updateLocalStorage({ stickers: this.state.stickers });
-    }
   }
   toggleTheme = () => {
     this.setState(state => ({
@@ -131,7 +163,16 @@ export default class MainBoard extends React.Component<{}, State> {
     if (typeof isDark !== 'undefined') {
       localStorage.setItem('theme', isDark ? 'dark' : 'default');
     }
-  } 
+  }
+  updateServer = debounce((update: { stickers?: ISticker[], isDark?: boolean }) => {
+    const { stickers, isDark } = update;
+    if (stickers) {
+      dataApi.update('stickers', stickers);
+    }
+    if (typeof isDark !== 'undefined') {
+      dataApi.update('theme', isDark ? 'dark' : 'default');
+    }
+  }, 1000);
   render() {
     const { stickers, isDark } = this.state;
     return (
@@ -154,3 +195,17 @@ export default class MainBoard extends React.Component<{}, State> {
     )
   }
 }
+
+export default (props: {}) => (
+  <AuthContext.Consumer>
+    {
+      ({ isLoggedIn, userData }) => (
+        <MainBoard
+          isLoggedIn={isLoggedIn}
+          userData={userData}
+          {...props}
+        />
+      )
+    }
+  </AuthContext.Consumer>
+)

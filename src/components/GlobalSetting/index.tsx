@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '../../theme';
 import { IconButton, Popover } from '..';
+import { IUser } from '../../interfaces';
 import { AuthContext } from '../../contexts';
 import SettingIcon from 'react-icons/lib/ti/cog-outline';
 import NightIcon from 'react-icons/lib/io/ios-moon-outline';
@@ -20,14 +21,22 @@ const SettingList = styled.div`
   color: ${props => props.theme.primaryTextColor};
   padding: 10px;
 `;
+const ListHeader = styled.div`
+  display: flex;
+  align-items: center;
+
+  font-size: 20px;
+`;
 const ListItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 5px;
 
   font-size: 16px;
 
   cursor: pointer;
+  
 `;
 const ColorWrapper = styled.span`
   color: ${props => props.theme.primaryTextColor};
@@ -72,15 +81,28 @@ export default class GlobalSetting extends React.Component<SettingProps, State> 
           handleClose={this.closeMenu}
         >
           <SettingList>
-            {
-              <AuthContext.Consumer>
-                {(context) => (
-                  <ListItem onClick={context.showLoginModal}>
-                    <span>Login</span>
-                  </ListItem>
-                )}
-              </AuthContext.Consumer>
-            }
+            <AuthContext.Consumer>
+              {({ isLoggedIn, showLoginModal, logout, userData }) => (
+                <>
+                  {
+                    isLoggedIn ? (
+                      <>
+                        <ListHeader>
+                          <span>{(userData as IUser).username}</span>
+                        </ListHeader>
+                        <ListItem onClick={logout}>
+                          <span>Logout</span>
+                        </ListItem>
+                      </>
+                    ) : (
+                      <ListItem onClick={showLoginModal}>
+                        <span>Login</span>
+                      </ListItem>
+                    )
+                  }
+                </>
+              )}
+            </AuthContext.Consumer>
             <ListItem onClick={toggleTheme}>
               <span>Night Mode</span>
               <Icon>{isDark ? <FillNightIcon /> : <NightIcon />}</Icon>
