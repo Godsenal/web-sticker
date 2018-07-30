@@ -2,22 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('../../utils/crypto'); // encrypt / decrypt util functions.
 const authutil = require('../../utils/auth'); // jwt verification util functions.
-
+const { checkExistUser, findUserData, saveUserData } = require('../../utils/database');
 const authPath = path.resolve(process.cwd(), 'data', 'users');
 
-const checkExistUser = (username) => {
-  return fs.existsSync(path.join(authPath, `/${username}.json`));
-}
-const findUserData = (username) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path.join(authPath, `/${username}.json`), (err, userData) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve(JSON.parse(userData));
-    })
-  })
-}
 
 exports.login_post = (req, res) => {
   const { username, password } = req.body;
@@ -32,7 +19,7 @@ exports.login_post = (req, res) => {
     }
     let decrypted = crypto.decrypt(userdata.password);
     if (decrypted === password) {
-      return authutil.jwtlogin({ username: userdata.username });
+      return authutil.jwtlogin(userdata);
     }
     throw new Error('Incorrect Username or Password.');
   };
@@ -60,23 +47,16 @@ exports.login_post = (req, res) => {
 exports.signup_post = (req, res) => {
   const { username, password } = req.body;
   const saveUser = (id, pw) => {
-    return new Promise((resolve) => {
-      const userData = {
-        username: id,
-        password: crypto.encrypt(pw),
-        stcikers: [],
-        theme: 'default',
-      };
-      if (checkExistUser(id)) {
-        throw new Error('Username has already been used.');
-      }
-      fs.writeFile(path.resolve(authPath, `${id}.json`), JSON.stringify(userData), 'utf-8', err => {
-        if (err) {
-          throw new Error('Failed to find user');
-        }
-        return resolve(id);
-      });
-    });
+    const userData = {
+      username: id,
+      password: crypto.encrypt(pw),
+      stickers: [],
+      theme: 'default',
+    };
+    if (checkExistUser(id)) {
+      throw new Error('Username has already been used.');
+    }
+    return saveUserData(id, userData);
   }
   const success = username => res.json({
     username: username,
@@ -90,7 +70,6 @@ exports.signup_post = (req, res) => {
 exports.verify_get = (req, res) => {
   const { decoded } = req;
   const check = (user) => {
-    console.log(user);
     if (!user) {
       throw new Error('Cannot find user');
     }
