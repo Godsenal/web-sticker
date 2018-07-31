@@ -4,6 +4,7 @@ import styled from '../../theme';
 interface StyledProps {
   isFocused?: boolean;
   isValid?: boolean;
+  type?: string;
 }
 const Container = styled.div`
   margin-bottom: 20px;
@@ -14,7 +15,9 @@ const Container = styled.div`
     }
   `)}
 `;
-const Input = styled.input`
+const Input = styled.input.attrs({
+  type: (props: StyledProps) => props.type,
+})`
   width: 100%;
   padding: 5px 0px;
   color: rgba(0, 0, 0, 0.84);
@@ -52,6 +55,7 @@ export interface FormFieldProps {
   message?: string;
   value?: string;
   type?: string;
+  isValid?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 interface State {
@@ -73,7 +77,7 @@ export default class Field extends React.PureComponent<FormFieldProps, State> {
   }
   render() {
     const { isFocused } = this.state;
-    const { name, label, message, value, ...props } = this.props;
+    const { name, label, message, value, type, ...props } = this.props;
     return (
       <Container isFocused={isFocused}>
         <Label>
@@ -83,6 +87,7 @@ export default class Field extends React.PureComponent<FormFieldProps, State> {
             onBlur={this.onBlur}
             name={name}
             value={value}
+            type={type}
             {...props}
           />
         </Label>

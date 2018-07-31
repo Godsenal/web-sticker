@@ -20,13 +20,22 @@ const FixedButton = styled.div`
   font-size: 24px;
   z-index: 1000;
 `;
+const Synced = styled.div`
+  position: absolute;
+  color: #637282;
+  bottom: 5px;
+  right: 30px;
+  font-size: 20px;
+  z-index: 1000;
+`;
 export interface MainBoardProps {
   isLoggedIn: boolean;
   userData: IUser | {};
 }
 interface State {
-  stickers: ISticker[];
-  isDark: boolean;
+  readonly stickers: ISticker[];
+  readonly isDark: boolean;
+  readonly isSynced: boolean;
 }
 interface UpdateSticker {
   top?: number;
@@ -41,6 +50,7 @@ class MainBoard extends React.Component<MainBoardProps, State> {
   state = {
     stickers: [],
     isDark: false,
+    isSynced: false,
   }
   componentDidMount() {
     this._updateByMode = this.updateLocalStorage;
@@ -60,6 +70,9 @@ class MainBoard extends React.Component<MainBoardProps, State> {
       this._updateByMode({ isDark: this.state.isDark });
     }
     if (prevState.stickers !== this.state.stickers) {
+      this.setState({
+        isSynced: false,
+      });
       this._updateByMode({ stickers: this.state.stickers });
     }
   }
@@ -156,6 +169,10 @@ class MainBoard extends React.Component<MainBoardProps, State> {
     }));
   }
   updateLocalStorage = (update: { stickers?: ISticker[], isDark?: boolean }) => {
+    // prevent debounced update when logout
+    if (this.props.isLoggedIn) {
+      return;
+    }
     const { stickers, isDark } = update;
     if (stickers) {
       localStorage.setItem('stickers', JSON.stringify(stickers));
@@ -165,16 +182,26 @@ class MainBoard extends React.Component<MainBoardProps, State> {
     }
   }
   updateServer = debounce((update: { stickers?: ISticker[], isDark?: boolean }) => {
+    // prevent debounced update when logout
+    if (!this.props.isLoggedIn) {
+      return;
+    }
     const { stickers, isDark } = update;
     if (stickers) {
-      dataApi.update('stickers', stickers);
+      dataApi.update('stickers', stickers)
+        .then(() => {
+          this.setState({
+            isSynced: true,
+          });
+        });
     }
     if (typeof isDark !== 'undefined') {
       dataApi.update('theme', isDark ? 'dark' : 'default');
     }
   }, 1000);
   render() {
-    const { stickers, isDark } = this.state;
+    const { isLoggedIn } = this.props;
+    const { stickers, isDark, isSynced } = this.state;
     return (
       <ThemeProvider theme={isDark ? darkTheme : theme}>
         <Container isDark={isDark}>
@@ -184,6 +211,13 @@ class MainBoard extends React.Component<MainBoardProps, State> {
               toggleTheme={this.toggleTheme}
             />
           </FixedButton>
+          {
+            isLoggedIn && (
+              <Synced>
+                {isSynced ? 'Up to date!' : 'Syncing with your accounts..'}
+              </Synced>
+            )
+          }
           <Board
             stickers={stickers}
             addSticker={this.addSticker}

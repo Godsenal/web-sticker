@@ -1,10 +1,6 @@
-const path = require('path');
-const fs = require('fs');
 const crypto = require('../../utils/crypto'); // encrypt / decrypt util functions.
 const authutil = require('../../utils/auth'); // jwt verification util functions.
-const { checkExistUser, findUserData, saveUserData } = require('../../utils/database');
-const authPath = path.resolve(process.cwd(), 'data', 'users');
-
+const { findUserData, saveUserData } = require('../../utils/database');
 
 exports.login_post = (req, res) => {
   const { username, password } = req.body;
@@ -36,7 +32,9 @@ exports.login_post = (req, res) => {
     })
   );
   // send error message. Anauthorized
-  const error = (err) => res.status(401).json({ error: err.message });
+  const error = (err) => {
+    return res.status(401).json({ error: 'Incorrect Username or Password.' });
+  }
   // promise chainning.
   findUserData(username)
     .then(check)
@@ -46,23 +44,15 @@ exports.login_post = (req, res) => {
 
 exports.signup_post = (req, res) => {
   const { username, password } = req.body;
-  const saveUser = (id, pw) => {
-    const userData = {
-      username: id,
-      password: crypto.encrypt(pw),
-      stickers: [],
-      theme: 'default',
-    };
-    if (checkExistUser(id)) {
-      throw new Error('Username has already been used.');
-    }
-    return saveUserData(id, userData);
-  }
+  const userData = {
+    username,
+    password,
+  };
   const success = username => res.json({
-    username: username,
+    username,
   });
-  const error = err => res.status(401).json({ error: err.message });
-  saveUser(username, password)
+  const error = err => res.status(401).json({ type: err.name, error: err.message });
+  saveUserData(userData)
     .then(success)
     .catch(error);
 };

@@ -10,11 +10,6 @@ export interface BoardProps {
   updateSticker: (id: number, update: {}) => void;
   removeSticker: (id: number) => void;
 }
-interface State {
-  readonly isInput: boolean;
-  readonly posX: number;
-  readonly posY: number;
-}
 const Container = styled.div`
   position: relative;
 
@@ -26,13 +21,8 @@ const EmptyBox = styled.div`
   justify-content: center;
   align-items: center;
 `;
-export default class Board extends React.Component<BoardProps, State> {
-  state = {
-    isInput: false,
-    posX: 0,
-    posY: 0,
-  }
-  handleMouseDown = (e: React.MouseEvent) => {
+const Board: React.SFC<BoardProps> = (props) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const top = clientY - (STICKER_HEIGHT / 2);
     const left = clientX - (STICKER_WIDTH / 2);
@@ -41,36 +31,35 @@ export default class Board extends React.Component<BoardProps, State> {
       left,
       contents: '',
     }
-    this.props.addSticker(sticker);
+    props.addSticker(sticker);
   }
-  handleDrop = (e: React.DragEvent, targetId: number) => {
+  const handleDrop = (e: React.DragEvent, targetId: number) => {
     // e.preventDefault();
     // const { clientX, clientY } = e;
     // this.props.updateSticker(targetId, { left: clientX, top: clientY });
   }
-  render() {
-    const { stickers, updateSticker, removeSticker } = this.props;
-    const { isInput, posX, posY } = this.state;
-    return (
-      <DropProvider handleDrop={this.handleDrop}>
-        <Container onMouseDown={this.handleMouseDown}>
-          {stickers.map(sticker => (
-            <Sticker
-              key={sticker.id}
-              {...sticker}
-              updateSticker={updateSticker}
-              removeSticker={removeSticker}
-            />
-          ))}
-          {
-            stickers.length === 0 && (
-              <EmptyBox>
-                Click anywhere to add sticker!
-              </EmptyBox>
-            )
-          }
-        </Container>
-      </DropProvider>
-    );
-  }
+  const { stickers, updateSticker, removeSticker } = props;
+  return (
+    <DropProvider handleDrop={handleDrop}>
+      <Container onMouseDown={handleMouseDown}>
+        {stickers.map(sticker => (
+          <Sticker
+            key={sticker.id}
+            {...sticker}
+            updateSticker={updateSticker}
+            removeSticker={removeSticker}
+          />
+        ))}
+        {
+          stickers.length === 0 && (
+            <EmptyBox>
+              Click anywhere to add sticker!
+            </EmptyBox>
+          )
+        }
+      </Container>
+    </DropProvider>
+  );
 }
+
+export default Board;

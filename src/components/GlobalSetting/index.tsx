@@ -9,6 +9,10 @@ import FillNightIcon from 'react-icons/lib/io/ios-moon';
 
 export interface SettingProps {
   isDark: boolean;
+  isLoggedIn?: boolean;
+  showLoginModal?: () => void;
+  logout?: () => void;
+  userData?: IUser | {};
   toggleTheme: () => void;
 }
 interface State {
@@ -22,10 +26,8 @@ const SettingList = styled.div`
   padding: 10px;
 `;
 const ListHeader = styled.div`
-  display: flex;
-  align-items: center;
-
-  font-size: 20px;
+  font-size: 24px;
+  margin-bottom: 20px;
 `;
 const ListItem = styled.div`
   display: flex;
@@ -45,7 +47,10 @@ const Icon = styled.span`
   display: flex;
   font-size: 24px;
 `;
-export default class GlobalSetting extends React.Component<SettingProps, State> {
+const User = styled.span`
+  font-weight: 600;
+`;
+class GlobalSetting extends React.Component<SettingProps, State> {
   private _setting: React.RefObject<HTMLSpanElement>;
   constructor(props: SettingProps) {
     super(props);
@@ -67,7 +72,7 @@ export default class GlobalSetting extends React.Component<SettingProps, State> 
   }
   render() {
     const { showMenu } = this.state;
-    const { toggleTheme, isDark } = this.props;
+    const { toggleTheme, isDark, isLoggedIn, userData, logout, showLoginModal } = this.props;
     return (
       <>
         <IconButton innerRef={this._setting} onClick={this.toggleMenu}>
@@ -80,29 +85,24 @@ export default class GlobalSetting extends React.Component<SettingProps, State> 
           open={showMenu}
           handleClose={this.closeMenu}
         >
-          <SettingList>
-            <AuthContext.Consumer>
-              {({ isLoggedIn, showLoginModal, logout, userData }) => (
+          <SettingList onClick={this.closeMenu}>
+            {
+              isLoggedIn ? (
                 <>
-                  {
-                    isLoggedIn ? (
-                      <>
-                        <ListHeader>
-                          <span>{(userData as IUser).username}</span>
-                        </ListHeader>
-                        <ListItem onClick={logout}>
-                          <span>Logout</span>
-                        </ListItem>
-                      </>
-                    ) : (
-                      <ListItem onClick={showLoginModal}>
-                        <span>Login</span>
-                      </ListItem>
-                    )
-                  }
+                  <ListHeader>
+                    <div>Hello!</div>
+                    <User>{(userData as IUser).username}</User>
+                  </ListHeader>
+                  <ListItem onClick={logout}>
+                    <span>Logout</span>
+                  </ListItem>
                 </>
-              )}
-            </AuthContext.Consumer>
+              ) : (
+                <ListItem onClick={showLoginModal}>
+                  <span>Login to sync</span>
+                </ListItem>
+              )
+            }
             <ListItem onClick={toggleTheme}>
               <span>Night Mode</span>
               <Icon>{isDark ? <FillNightIcon /> : <NightIcon />}</Icon>
@@ -113,3 +113,19 @@ export default class GlobalSetting extends React.Component<SettingProps, State> 
     )
   }
 }
+
+export default (props: SettingProps) => (
+  <AuthContext.Consumer>
+    {
+      ({ isLoggedIn, showLoginModal, logout, userData }) => (
+        <GlobalSetting
+          isLoggedIn={isLoggedIn}
+          showLoginModal={showLoginModal}
+          logout={logout}
+          userData={userData}
+          {...props}
+        />
+      )
+    }
+  </AuthContext.Consumer>
+)

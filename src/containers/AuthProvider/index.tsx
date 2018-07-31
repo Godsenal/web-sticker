@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, LoginForm } from '..';
+import { Modal, LoginForm, SignupForm } from '..';
 import { AuthContext } from '../../contexts';
 import { IUser } from '../../interfaces';
 import { jwt } from '../../utils';
@@ -10,14 +10,14 @@ export interface AuthProviderProps {
 }
 interface State {
   isLoggedIn: boolean;
-  show: boolean;
+  show: string;
   userData: IUser | {};
 }
 export default class AuthProvider extends React.Component<AuthProviderProps, State> {
   state = {
     isLoggedIn: false,
-    show: false,
     userData: {},
+    show: '',
   }
   componentDidMount() {
     const currentToken = jwt.getToken();
@@ -31,30 +31,28 @@ export default class AuthProvider extends React.Component<AuthProviderProps, Sta
         this.updateUserData(userData);
       })
   }
+  handleLoginSuccess = (userData: IUser) => {
+    this.updateUserData(userData);
+    this.closeModal();
+  }
+  handleSignupSuccess = (username: string) => {
+    this.showModal('login');
+  }
   updateUserData = (userData: IUser) => {
     this.setState({
       isLoggedIn: true,
       userData: userData,
     });
   }
-  showLoginModal = () => {
-    this.setState({
-      show: true,
-    });
+  showModal = (type: string) => {
+    this.setState(state => ({
+      show: type,
+    }));
   }
-  closeLoginModal = () => {
-    this.setState({
-      show: false,
-    })
-  }
-  login = (username: string, password: string) => {
-    authApi.login(username, password)
-      .then(res => {
-        const { token, ...userData } = res.data;
-        jwt.setToken(token);
-        this.updateUserData(userData);
-        this.closeLoginModal();
-      });
+  closeModal = () => {
+    this.setState(state => ({
+      show: '',
+    }));
   }
   logout = () => {
     jwt.removeToken();
@@ -66,15 +64,25 @@ export default class AuthProvider extends React.Component<AuthProviderProps, Sta
   render() {
     const provideValue = {
       ...this.state,
-      showLoginModal: this.showLoginModal,
+      showLoginModal: () => this.showModal('login'),
+      showSignupModal: () => this.showModal('signup'),
       logout: this.logout,
     }
     const { show } = this.state;
     return (
       <AuthContext.Provider value={provideValue}>
         {this.props.children}
-        <Modal show={show} handleClose={this.closeLoginModal}>
-          <LoginForm handleLogin={this.login} />
+        <Modal show={show.length !== 0} handleClose={this.closeModal}>
+          {
+            show === 'login' ? (
+              <LoginForm
+                handleLoginSuccess={this.handleLoginSuccess}
+                goToSignup={() => this.showModal('signup')}
+              />
+            ) : (
+              <SignupForm handleSignupSuccess={this.handleSignupSuccess} />
+            )
+          }
         </Modal>
       </AuthContext.Provider>
     )

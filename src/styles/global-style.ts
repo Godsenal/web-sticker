@@ -9,6 +9,7 @@ injectGlobal`
         height: 100%;
         width: 100%;
         background-color: #fff;
+        overflow: hidden;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
