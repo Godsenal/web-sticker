@@ -56,13 +56,14 @@ export default class StickerText extends React.PureComponent<StickerTextProps, S
   }
   render() {
     const { value } = this.state;
-    const { fontSize } = this.props;
+    const { fontSize, ...props } = this.props;
     return (
       <TextArea
         value={value}
         onChange={this.handleChange}
         fontSize={fontSize}
         innerRef={this._textarea}
+        {...props}
       />
     )
   }

@@ -159,6 +159,7 @@ export default class SignupForm extends React.Component<SignupFormProps, State> 
             <FormField
               name="username"
               label="username"
+              autoComplete="username"
               onChange={this.handleChange('username')}
               isValid={valid.username.isValid}
               message={valid.username.message}
@@ -168,6 +169,7 @@ export default class SignupForm extends React.Component<SignupFormProps, State> 
               type="password"
               name="password"
               label="password"
+              autoComplete="current-password"
               onChange={this.handleChange('password')}
               isValid={valid.password.isValid}
               message={valid.password.message}

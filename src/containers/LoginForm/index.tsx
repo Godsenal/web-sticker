@@ -90,12 +90,14 @@ export default class LoginForm extends React.Component<LoginFormProps, State> {
               name="username"
               label="username"
               onChange={this.handleChange('username')}
+              autoComplete="username"
               value={username}
             />
             <FormField
               type="password"
               name="password"
               label="password"
+              autoComplete="current-password"
               onChange={this.handleChange('password')}
               value={password}
             />

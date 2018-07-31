@@ -19,12 +19,12 @@ interface StyledProps {
 /* Use attrs api when use styled-components with react-motion */
 const Container = styled.div.attrs({
   style: ((props: StyledProps) => ({
-    transform: 'scale(' + props.scale + ')'
+    top: props.top + '%',
+    left: props.left + '%',
+    transform: 'scale(' + props.scale + ')',
   })),
 })`
   position: absolute;
-  top: ${(props: StyledProps) => props.top}%;
-  left: ${(props: StyledProps) => props.left}%;
   width: ${(props: StyledProps) => props.width}px;
   height: ${(props: StyledProps) => props.height}px;
   min-width: 80px;
@@ -51,9 +51,10 @@ export interface StickerProps extends ISticker {
 interface State {
   draggable: boolean;
   isDragging: boolean;
-  moveX: number;
-  moveY: number;
   isFocused: boolean;
+  isTouchable: boolean;
+  moveX?: number;
+  moveY?: number;
 }
 export default class Sticker extends React.Component<StickerProps, State> {
   private _sticker: React.RefObject<HTMLDivElement>;
@@ -69,13 +70,21 @@ export default class Sticker extends React.Component<StickerProps, State> {
     moveX: this.props.left,
     moveY: this.props.top,
     isFocused: false,
+    isTouchable: false,
   }
   constructor(props: StickerProps) {
     super(props);
     this._sticker = React.createRef();
   }
   componentDidMount() {
-    document.addEventListener('dragover', this.watchDrag);
+    if ('ontouchstart' in window || navigator.msMaxTouchPoints) {
+      this.setState({
+        isTouchable: true,
+      });
+    }
+    else {
+      document.addEventListener('dragover', this.watchDrag);
+    }
   }
   componentWillUnmount() {
     document.removeEventListener('dragover', this.watchDrag);
@@ -119,8 +128,14 @@ export default class Sticker extends React.Component<StickerProps, State> {
       draggable: condition,
     });
   }
-  // Update current width & height after resize
-  onMouseUp = (e: React.MouseEvent) => {
+  saveOldMeasurement = () => {
+    let sticker;
+    if (sticker = this._sticker.current) {
+      this._oldWidth = sticker.offsetWidth;
+      this._oldHeight = sticker.offsetHeight;
+    }
+  }
+  updateMeasurement = () => {
     let sticker;
     if (sticker = this._sticker.current) {
       if (this._oldWidth !== sticker.clientWidth || this._oldHeight !== sticker.clientHeight) {
@@ -138,12 +153,42 @@ export default class Sticker extends React.Component<StickerProps, State> {
     // Prevent add Sticker in Board Component.
     if (this._sticker.current && e.currentTarget.contains(this._sticker.current)) {
       e.stopPropagation();
-      let sticker;
-      if (sticker = this._sticker.current) {
-        this._oldWidth = sticker.offsetWidth;
-        this._oldHeight = sticker.offsetHeight;
-      }
+      this.saveOldMeasurement();
     }
+  }
+  onTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    const { clientX, clientY } = e.touches[0];
+    const { shiftX, shiftY } = this.getShift(clientX, clientY);
+    this._shiftX = shiftX;
+    this._shiftY = shiftY;
+    this.setState({
+      isDragging: true,
+    });
+  }
+  onTouchMove = (e: React.TouchEvent) => {
+    const { clientX, clientY } = e.touches[0];
+    const { _shiftX, _shiftY } = this;
+    const moveX = (clientX - _shiftX) / window.innerWidth * 100;
+    const moveY = (clientY - _shiftY) / window.innerHeight * 100;
+    this.setState({
+      moveX,
+      moveY,
+    });
+  }
+  onTouchEnd = (e: React.TouchEvent) => {
+    const { id, updateSticker } = this.props;
+    const { moveX, moveY } = this.state;
+    const update = {
+      top: moveY * window.innerHeight / 100,
+      left: moveX * window.innerWidth / 100,
+    };
+    updateSticker(id, update);
+    this.setDraggable(false);
+  }
+  // Update current width & height after resize
+  onMouseUp = () => {
+    this.updateMeasurement();
   }
   // Save current shift before drag start
   onDragStart = (e: React.DragEvent) => {
@@ -172,7 +217,7 @@ export default class Sticker extends React.Component<StickerProps, State> {
     this.setDraggable(false);
   }
   render() {
-    const { draggable, isFocused } = this.state;
+    const { draggable, isFocused, isTouchable, moveX, moveY } = this.state;
     const { id, contents, top, left, width, height, fontSize, backgroundColor } = this.props;
     // TabIndex make div focusable
     return (
@@ -185,8 +230,8 @@ export default class Sticker extends React.Component<StickerProps, State> {
             <Container
               innerRef={this._sticker}
               tabIndex={id}
-              left={left}
-              top={top}
+              left={isTouchable ? moveX : left}
+              top={isTouchable ? moveY : top}
               width={width}
               height={height}
               backgroundColor={backgroundColor}
@@ -195,6 +240,9 @@ export default class Sticker extends React.Component<StickerProps, State> {
               draggable={draggable}
               onDragStart={this.onDragStart}
               onDragEnd={this.onDragEnd}
+              onTouchStart={this.onTouchStart}
+              onTouchMove={this.onTouchMove}
+              onTouchEnd={this.onTouchEnd}
               onMouseUp={this.onMouseUp}
               onMouseDown={this.onMouseDown}
             >

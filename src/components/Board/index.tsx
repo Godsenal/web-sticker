@@ -20,10 +20,13 @@ const EmptyBox = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  font-size: 1.5rem;
+  color: ${props => props.theme.primaryTextColor};
 `;
 const Board: React.SFC<BoardProps> = (props) => {
-  const handleMouseDown = (e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
+  let _board: React.RefObject<HTMLDivElement> = React.createRef();
+  const addStickerAtCenter = (clientX: number, clientY: number) => {
     const top = clientY - (STICKER_HEIGHT / 2);
     const left = clientX - (STICKER_WIDTH / 2);
     const sticker = {
@@ -33,6 +36,18 @@ const Board: React.SFC<BoardProps> = (props) => {
     }
     props.addSticker(sticker);
   }
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.currentTarget === _board.current) {
+      const { clientX, clientY } = e.touches[0];
+      addStickerAtCenter(clientX, clientY);
+    }
+  }
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === _board.current) {
+      const { clientX, clientY } = e;
+      addStickerAtCenter(clientX, clientY);
+    }
+  }
   const handleDrop = (e: React.DragEvent, targetId: number) => {
     e.preventDefault();
     // const { clientX, clientY } = e;
@@ -41,7 +56,7 @@ const Board: React.SFC<BoardProps> = (props) => {
   const { stickers, updateSticker, removeSticker } = props;
   return (
     <DropProvider handleDrop={handleDrop}>
-      <Container onMouseDown={handleMouseDown}>
+      <Container innerRef={_board} onMouseDown={handleMouseDown} onTouchStart={handleTouchStart}>
         {stickers.map(sticker => (
           <Sticker
             key={sticker.id}

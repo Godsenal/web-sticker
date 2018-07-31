@@ -5,6 +5,7 @@ interface StyledProps {
   isFocused?: boolean;
   isValid?: boolean;
   type?: string;
+  autoComplete?: string;
 }
 const Container = styled.div`
   margin-bottom: 20px;
@@ -17,6 +18,7 @@ const Container = styled.div`
 `;
 const Input = styled.input.attrs({
   type: (props: StyledProps) => props.type,
+  autoComplete: (props: StyledProps) => props.autoComplete,
 })`
   width: 100%;
   padding: 5px 0px;
@@ -49,12 +51,13 @@ const Message = styled.div`
   font-weight: 600;
 `;
 
-export interface FormFieldProps {
+export interface FormFieldProps extends React.HTMLAttributes<HTMLInputElement> {
   name: string;
   label: string;
   message?: string;
   value?: string;
   type?: string;
+  autoComplete?: string;
   isValid?: boolean;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
