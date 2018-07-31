@@ -53,12 +53,18 @@ class MainBoard extends React.Component<MainBoardProps, State> {
     isSynced: false,
   }
   componentDidMount() {
-    this._updateByMode = this.updateLocalStorage;
-    this.setLocalData();
+    if (this.props.isLoggedIn) {
+      this._updateByMode = this.updateServer;
+    }
+    else {
+      this._updateByMode = this.updateLocalStorage;
+      this.setLocalData();
+    }
   }
   componentDidUpdate(prevProps: MainBoardProps, prevState: State) {
     // login
     if (this.props.isLoggedIn && prevProps.isLoggedIn !== this.props.isLoggedIn) {
+      this._updateByMode = this.updateServer;
       this.setServerData();
     }
     // logout
@@ -90,23 +96,14 @@ class MainBoard extends React.Component<MainBoardProps, State> {
   setLocalData = () => {
     const savedStickers = localStorage.getItem('stickers');
     const savedTheme = localStorage.getItem('theme');
-    let savedState = {};
-    if (savedStickers) {
-      const stickers = JSON.parse(savedStickers);
-      if (stickers.length > 0) {
-        this._id = stickers[stickers.length - 1].id + 1;
-        savedState = {
-          ...savedState,
-          stickers,
-        };
-      }
+    const stickers = savedStickers ? JSON.parse(savedStickers) : [];
+    if (stickers.length > 0) {
+      this._id = stickers[stickers.length - 1].id + 1;
     }
-    if(savedTheme) {
-      savedState = {
-        ...savedState,
-        isDark: savedTheme === 'dark',
-      }
-    }
+    const savedState = {
+      stickers,
+      isDark: savedTheme === 'dark',
+    };
     this.setState({
       ...this.state,
       ...savedState,
