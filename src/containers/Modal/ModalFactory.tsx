@@ -27,6 +27,12 @@ const InnerContainer = styled.div.attrs({
   padding: 10px 0;
   margin-left: -300px;
 
+  @media (max-width: 600px) {
+    width: 100%;
+    left: 0;
+    margin-left: 0;
+  }
+
   color: rgba(0, 0, 0, 0.84);
   background-color: white;
   font-size: 20px;

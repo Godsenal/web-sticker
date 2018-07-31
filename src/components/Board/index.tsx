@@ -3,7 +3,6 @@ import styled from '../../theme';
 import { Sticker, DropProvider } from '..';
 import { ISticker } from '../../interfaces';
 import { STICKER_WIDTH, STICKER_HEIGHT } from '../../constants';
-
 export interface BoardProps {
   stickers: ISticker[];
   addSticker: (sticker: {}) => void;
@@ -43,7 +42,7 @@ const Board: React.SFC<BoardProps> = (props) => {
     }
   }
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === _board.current) {
+    if (e.currentTarget === _board.current) {
       const { clientX, clientY } = e;
       addStickerAtCenter(clientX, clientY);
     }
@@ -68,7 +67,7 @@ const Board: React.SFC<BoardProps> = (props) => {
         {
           stickers.length === 0 && (
             <EmptyBox>
-              Click anywhere to add sticker!
+              <span>Click anywhere to add sticker! 👉</span>
             </EmptyBox>
           )
         }

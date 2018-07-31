@@ -1,7 +1,6 @@
 import React from 'react';
 import debounce from 'lodash/debounce';
 import styled from '../../theme';
-import { IUser } from '../../interfaces';
 import { Button, Form, FormField } from '../../components';
 import * as authApi from '../../api/auth';
 import { str } from '../../utils';
@@ -11,7 +10,7 @@ const ActionButton = styled.div`
   margin-bottom: 10px;
 `;
 const Message = styled.div`
-  margin-top: 5px;
+  margin: 20px 0px;
   min-height: 10px;
   color: #F23C57;
   font-size: 1rem;
@@ -156,6 +155,7 @@ export default class SignupForm extends React.Component<SignupFormProps, State> 
       <div>
         <Form header="SIGNUP" onKeyPress={this.handleEnter}>
           <>
+            <Message>⚠️ Caution: This is toy project. Don't use personal password!</Message>
             <FormField
               name="username"
               label="username"
