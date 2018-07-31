@@ -34,7 +34,7 @@ const Board: React.SFC<BoardProps> = (props) => {
     props.addSticker(sticker);
   }
   const handleDrop = (e: React.DragEvent, targetId: number) => {
-    // e.preventDefault();
+    e.preventDefault();
     // const { clientX, clientY } = e;
     // this.props.updateSticker(targetId, { left: clientX, top: clientY });
   }
