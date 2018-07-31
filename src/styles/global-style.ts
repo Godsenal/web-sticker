@@ -11,6 +11,7 @@ injectGlobal`
         background-color: #fff;
         overflow: hidden;
         text-rendering: optimizeLegibility;
+        font-family: 'Ubuntu', 'Nanum Gothic', sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
