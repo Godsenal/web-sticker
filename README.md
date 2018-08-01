@@ -1,7 +1,11 @@
-# web-sticker
+# web-sticker 
 
-Web sticker memo.
-This is a toy project to learn react with typescript.
+>Web sticker memo.
+>
+>This is a toy project to learn react with typescript.
+>
+>👀 [You can see this here](http://45.76.194.251). 
+
 
 ## What is this?
 
