@@ -4,7 +4,7 @@ const path = require('path');
 
 const devMode = process.env.NODE_ENV !== 'production';
 
-module.exports = (option) => ({
+module.exports = option => ({
   target: 'web',
   mode: option.mode,
   resolve: {
@@ -36,7 +36,7 @@ module.exports = (option) => ({
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: 'awesome-typescript-loader',
+        use: 'babel-loader',
       },
       {
         test: /\.eot(\?v=\d+.\d+.\d+)?$/,
@@ -103,30 +103,7 @@ module.exports = (option) => ({
         test: /(\.css|\.scss|\.sass)$/,
         use: [
           devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1,
-              minimize: true,
-              sourceMap: true,
-              modules: true,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
-            },
-          }, {
-            loader: 'postcss-loader',
-            options: {
-              plugins: () => [
-                require('autoprefixer'),
-              ],
-              sourceMap: true,
-            },
-          }, {
-            loader: 'sass-loader',
-            options: {
-              includePaths: [path.resolve(__dirname, 'src', 'scss')],
-              sourceMap: true,
-            },
-          },
+          'css-loader',
         ],
       },
     ],

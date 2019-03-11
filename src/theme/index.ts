@@ -1,4 +1,4 @@
-import * as styledComponents from "styled-components";
+import * as styledComponents from 'styled-components';
 
 const {
   default: styled,
@@ -32,7 +32,7 @@ export const darkTheme = {
   primaryTextColor: 'white',
   secondaryTextColor: 'currentColor',
   borderColor: '#e9e9eb',
-}
+};
 
 export default styled;
 export { css, injectGlobal, keyframes, ThemeProvider };
